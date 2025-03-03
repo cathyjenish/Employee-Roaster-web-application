@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Employee CSV</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url("{% static 'images/back1.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            
+        }
+
+
+        form {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Style the form heading */
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Style the form elements */
+        form p {
+            margin-bottom: 15px;
+        }
+
+        form label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        form input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        form button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #0056b3;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #004080;
+        }
+
+        /* Style the progress bar container */
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+        }
+
+        /* Style the progress bar */
+        .progress-bar {
+            height: 20px;
+            width: 0;
+            background-color: #4caf50;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+
+        /* Style the loading spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #3498db;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Center the spinner */
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-download {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        }
+        
+        .btn-download:hover {
+            background-color: #218838;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px; /* Add some space above the button */
+        }
+
+        .btn-home {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        }
+        
+        .btn-home:hover {
+            background-color: #1b7dae;
+        }
+        .home-container {
+            text-align: center;
+            margin-top: 20px; /* Add some space above the button */
+        }
+
+
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h2>Upload Employee CSV</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'upload_csv' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Upload</button>
+        </form>
+        <div id="progress-container" class="progress-container">
+            <div id="progress-bar" class="progress-bar">0%</div>
+        </div>
+        <div id="spinner" class="spinner center"></div>
+        <div id="button-container" class="button-container">
+            <a href="{% url 'download_schedule' %}" class="btn-download">Download Schedule</a>
+        </div>
+        <div id="home-container" class="home-container">
+            <a href="{% url 'home_view' %}" class="btn-home">Home</a>
+        </div>
+    </div>
+    <script>
+        // JavaScript to handle the form submission and show progress
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            var form = event.target;
+            var formData = new FormData(form);
+            var xhr = new XMLHttpRequest();
+            
+            xhr.open('POST', form.action, true);
+            
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    var percentComplete = (event.loaded / event.total) * 100;
+                    document.getElementById('progress-bar').style.width = percentComplete + '%';
+                    document.getElementById('progress-bar').textContent = Math.round(percentComplete) + '%';
+                }
+            };
+
+            xhr.onloadstart = function() {
+                document.getElementById('progress-container').style.display = 'block';
+                document.getElementById('spinner').style.display = 'block'; // Show rotating dots
+            };
+
+            xhr.onloadend = function() {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('progress-container').style.display = 'none';
+
+                if (xhr.status === 200) {
+                    // Successful upload
+                    var response = JSON.parse(xhr.responseText);
+                    alert('Upload successful: ' + response.message);
+                    console.log('Shifts:', response.shifts);
+                    // window.location.href = "{% url 'download_schedule' %}";
+                    // Optionally, you can update the UI with the shift information
+                } else {
+                    // Error during upload
+                    alert('Upload failed: ' + xhr.statusText);
+                }
+            };
+
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

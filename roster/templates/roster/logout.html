@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log out</title>
+    {% load static %}
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: url("{% static 'images/back1.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #0056b3;
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        .btn:hover {
+            background-color: #004080;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Thank you!</h1>
+        <p>Logged out successfully.</p>
+         
+        <!-- <a href="{% url 'upload_csv' %}" class="btn">Go to Upload Page</a> -->
+        {% if user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn">Login</a>
+            <a href="{% url 'signup' %}" class="btn">Sign Up</a>
+        {% endif %}
+    </div>
+</body>
+</html>
